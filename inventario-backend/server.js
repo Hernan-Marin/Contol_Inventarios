@@ -32,8 +32,16 @@ app.get('/', (req, res) => {
 // MongoDB Connection
 const connectDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGODB_URI);
-    console.log('MongoDB connected successfully');
+    const dbURI = process.env.NODE_ENV === 'test'
+                  ? process.env.MONGODB_URI_TEST
+                  : process.env.MONGODB_URI;
+
+    if (!dbURI) {
+      throw new Error(`MongoDB URI not found. Ensure ${process.env.NODE_ENV === 'test' ? 'MONGODB_URI_TEST' : 'MONGODB_URI'} is set.`);
+    }
+
+    await mongoose.connect(dbURI);
+    console.log(`MongoDB connected successfully to ${dbURI}`);
   } catch (error) {
     console.error('MongoDB connection error:', error.message);
     process.exit(1); // Exit process with failure
@@ -85,4 +93,13 @@ const startServer = async () => {
   });
 };
 
-startServer();
+// Start server only if not in test environment
+let server;
+if (process.env.NODE_ENV !== 'test') {
+  // const port = process.env.PORT || 3000; // port is already defined above
+  server = app.listen(port, () => { // Use the port variable defined at the top of the file
+    console.log(`Server listening on port ${port} in ${process.env.NODE_ENV || 'development'} mode`);
+  });
+}
+
+module.exports = { app, server }; // Export both for flexibility
