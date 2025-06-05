@@ -1,0 +1,13 @@
+node_modules/
+.env
+.quasar/
+dist/
+coverage/
+# IDE files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
