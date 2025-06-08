@@ -9,6 +9,7 @@ Este proyecto es una aplicación completa de gestión de inventario, construida 
 - [Tecnologías Utilizadas](#tecnologías-utilizadas)
 - [Prerrequisitos](#prerrequisitos)
 - [Configuración del Backend](#configuración-del-backend)
+  - [Configurar una Base de Datos MongoDB Local](#configurar-una-base-de-datos-mongodb-local-opcional-pero-recomendado-para-desarrollo)
 - [Configuración del Frontend](#configuración-del-frontend)
 - [Ejecutar la Aplicación](#ejecutar-la-aplicación)
 - [Documentación API](#documentación-api)
@@ -79,7 +80,7 @@ El sistema permite gestionar productos, unidades de medida, almacenes, contactos
 
 - Node.js (versión LTS recomendada, ej: 18.x o 20.x)
 - npm (o yarn)
-- MongoDB (asegúrate de que una instancia esté accesible)
+- MongoDB: Una instancia de MongoDB debe estar accesible. Puede ser una instancia local o un servicio en la nube (ej. MongoDB Atlas). Consulta la sección "[Configurar una Base de Datos MongoDB Local](#configurar-una-base-de-datos-mongodb-local-opcional-pero-recomendado-para-desarrollo)" en "Configuración del Backend" para obtener ayuda con la configuración local.
 - Quasar CLI (instalada globalmente si vas a usar comandos Quasar directamente, aunque el proyecto frontend ya está configurado)
   `npm install -g @quasar/cli`
 
@@ -104,10 +105,50 @@ El sistema permite gestionar productos, unidades de medida, almacenes, contactos
         ```env
         PORT=3000
         MONGODB_URI=mongodb://localhost:27017/inventario_db # Reemplaza con tu connection string de MongoDB
+        MONGODB_URI_TEST=mongodb://localhost:27017/inventario_test_db # Para las pruebas de Jest
         NODE_ENV=development
         # API_BASE_URL=http://localhost:3000 # Usado por Swagger, ajustar si es necesario
         ```
-    -   **Nota:** Asegúrate de que tu base de datos MongoDB esté corriendo y accesible.
+    -   **Nota:** Asegúrate de que tu base de datos MongoDB esté corriendo y accesible. Si usas una instancia local, consulta la sección siguiente.
+
+### Configurar una Base de Datos MongoDB Local (Opcional pero Recomendado para Desarrollo)
+
+Si prefieres utilizar una instancia de MongoDB corriendo directamente en tu máquina local en lugar de un servicio en la nube (como MongoDB Atlas) para desarrollo y pruebas, sigue estos pasos:
+
+1.  **Instalar MongoDB Community Server:**
+    *   Descarga MongoDB Community Server desde la [página oficial de MongoDB](https://www.mongodb.com/try/download/community).
+    *   Sigue las instrucciones de instalación específicas para tu sistema operativo:
+        *   [Windows](https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-windows/)
+        *   [macOS](https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-os-x/)
+        *   [Linux (selecciona tu distribución)](https://www.mongodb.com/docs/manual/administration/install-on-linux/)
+    *   Durante la instalación, usualmente se te dará la opción de instalar MongoDB como un servicio que se inicia automáticamente con tu sistema. Esto es recomendable.
+
+2.  **Iniciar el Servicio MongoDB:**
+    *   Si MongoDB no se inició automáticamente después de la instalación, deberás iniciarlo manualmente.
+        *   **Windows:** Busca "Services" en el menú de inicio, encuentra "MongoDB Server" y asegúrate de que esté corriendo. Puedes iniciarlo desde ahí.
+        *   **macOS (usando Homebrew):** `brew services start mongodb-community`
+        *   **Linux (dependiendo del sistema init, ej. systemd):** `sudo systemctl start mongod`
+    *   Por defecto, MongoDB escuchará en el puerto `27017`.
+
+3.  **Verificar la Conexión (Opcional):**
+    *   Puedes usar `mongosh` (el shell de MongoDB, que se instala con el servidor) para conectarte a tu instancia local. Abre una terminal y escribe `mongosh`. Si se conecta, estás listo.
+
+4.  **Actualizar el Archivo `.env` del Backend (Confirmación):**
+    *   Como se mencionó en la sección anterior de "Configurar Variables de Entorno", asegúrate de que tu archivo `inventario-backend/.env` contenga:
+
+        ```env
+        # Para desarrollo y producción (si usas local para producción, lo cual no es típico)
+        MONGODB_URI=mongodb://localhost:27017/inventario_db
+
+        # Para pruebas (Jest usará esta variable cuando NODE_ENV=test)
+        MONGODB_URI_TEST=mongodb://localhost:27017/inventario_test_db
+        ```
+    *   `inventario_db` será el nombre de la base de datos para desarrollo/uso general.
+    *   `inventario_test_db` será una base de datos separada que se usará para las pruebas automatizadas (Jest). Las pruebas están configuradas para limpiar esta base de datos.
+    *   No necesitas crear estas bases de datos manualmente; MongoDB las creará cuando la aplicación se conecte por primera vez y necesite escribir datos.
+
+Con estos pasos, el backend del proyecto utilizará tu instancia local de MongoDB.
+
 
 4.  **Ejecutar el Servidor Backend:**
     Dentro del directorio `inventario-backend`:
